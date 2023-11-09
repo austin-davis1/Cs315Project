@@ -5,6 +5,8 @@
         <meta name="description" content="Interest">
         <meta name="keywords" content="Interest Form">
         <link rel="stylesheet" href="./styles.css"/>
+        <link rel="stylesheet" media="screen and (max-width: 768px)" href="stylesMed.css">
+        <link rel="stylesheet" media="screen and (max-width: 480px)" href="stylesSmall.css">
     </head>
     <body>
         <header>
@@ -25,6 +27,55 @@
                 </ul>
             </nav>
         </header>
-        Content goes here.
+        <div class="form-container">
+            <h1>Travel Interest Form</h1>
+            <form id="travelForm">
+                <label for="destination">Select a Destination:</label>
+                <select id="destination" name="destination">
+                    <option value="Athens">Athens</option>
+                    <option value="Dubai">Dubai</option>
+                    <option value="New York City">New York City</option>
+                    <option value="Paris">Paris</option>
+                    <option value="Rio de Janeiro">Rio de Janeiro</option>
+                    <option value="Rome">Rome</option>
+                    <option value="Tokyo">Tokyo</option>
+                </select>
+    
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" required>
+    
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+    
+                <label for="message">Message:</label>
+                <textarea id="message" name="message" rows="4"></textarea>
+    
+                <button type="submit">Submit</button>
+            </form>
+        </div>
+        <script>
+            //Select the travelForm and listen for when use submits it
+            document.getElementById('travelForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            //Select all the fields the user can fill out and grab the value frome each
+            var destination = document.getElementById('destination').value;
+            var name = document.getElementById('name').value;
+            var email = document.getElementById('email').value;
+            var message = document.getElementById('message').value;
+
+            //Build a JS object based on input field data
+            var formData = {
+                destination: destination,
+                name: name,
+                email: email,
+                message: message
+            };
+
+            //Turn Object into JSON string using JSON.stringify()
+            var jsonData = JSON.stringify(formData);
+            console.log('JSON Data:', jsonData);
+        });
+        </script>
     </body>
 </html>

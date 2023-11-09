@@ -1,0 +1,125 @@
+.nav {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    padding: 10px;
+    align-items: center;
+    background-color: #20569e;
+}
+
+.nav-item {
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 10px;
+    font-weight: bold;
+    border-radius: 10px;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+    font-size: 15px;
+    text-align: center;
+    color: white;
+}
+
+.logo {
+    border-radius: 12px;
+    height: 50px;
+    width: 50px;
+}
+
+label,
+input,
+select,
+textarea,
+button {
+    margin-bottom: 15px;
+    font-size: 12px;
+}
+
+.globe {
+    width: 50px;
+    height: 50px;
+    background: url('./Assets/globe.png') no-repeat center center;
+    background-size: cover;
+    margin: 10px;
+    animation: rotate 4s linear infinite;
+    display: flex;
+    justify-content: center;
+    transition: width 2s, height 2s;
+}
+
+.globe:hover {
+    width: 100px;
+    height: 100px;
+}
+
+.about h2 {
+    font-size: 18px;
+    color: #007BFF;
+}
+
+.about p {
+    font-size: 15px;
+    color: #333;
+    margin-top: 20px;
+}
+
+.services {
+    background-color: #f5f5f5;
+    padding: 40px;
+    text-align: center;
+}
+
+.services h2 {
+    font-size: 18px;
+    color: #007BFF;
+}
+
+.services li {
+    font-size: 15px;
+    color: #333;
+    margin: 10px 0;
+}
+
+.contact {
+    background-color: #fff;
+    padding: 40px;
+    text-align: center;
+}
+
+.contact h2 {
+    font-size: 18px;
+    color: #007BFF;
+}
+
+.contact p {
+    font-size: 15px;
+    color: #333;
+    margin-top: 20px;
+}
+
+.welcome {
+    background-color: #007BFF;
+    color: #fff;
+    text-align: center;
+    padding: 80px 0;
+}
+
+.welcome h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.welcome p {
+    font-size: 15px;
+    margin-top: 20px;
+}
+
+.about {
+    padding: 40px;
+    text-align: center;
+}
+
+.about h2 {
+    font-size: 18px;
+    color: #007BFF;
+    margin-bottom: 20px;
+}
