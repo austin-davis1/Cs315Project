@@ -7,6 +7,12 @@
         <link rel="stylesheet" href="./styles.css"/>
         <link rel="stylesheet" media="screen and (max-width: 768px)" href="stylesMed.css">
         <link rel="stylesheet" media="screen and (max-width: 480px)" href="stylesSmall.css">
+        <script>
+            console.log("HI")
+            if (!sessionStorage.userAuthenticated) {
+                location.replace("http://localhost:8080/login.html")
+            }
+        </script>
     </head>
     <body>
         <header>
@@ -22,8 +28,9 @@
                     <li class="nav-item"><a href="rio.html">Rio</a></li>
                     <li class="nav-item"><a href="rome.html">Rome</a></li>
                     <li class="nav-item"><a href="tokyo.html">Tokyo</a></li>
-                    <li class="nav-item"><a href="interest.html">Interest Form</a></li>
-                    <li class="nav-item"><a href="about.html">About Us</a></li>
+                    <li class="nav-item"><a href="shop.html">BUY NOW</a></li>
+                    <li class="nav-item"><a href="orderHistory.html">ORDER HISTORY</a></li>
+                    <li class="nav-item"><a href="checkout.html">CHECKOUT</a></li>
                 </ul>
             </nav>
         </header>

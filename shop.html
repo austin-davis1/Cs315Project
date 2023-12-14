@@ -1,0 +1,214 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Home</title>
+        <meta name="description" content="Home page">
+        <meta name="keywords" content="Home Landing">
+        <link rel="stylesheet" href="./styles.css"/>
+        <link rel="stylesheet" media="screen and (max-width: 768px)" href="stylesMed.css">
+        <link rel="stylesheet" media="screen and (max-width: 480px)" href="stylesSmall.css">
+        <script>
+            console.log("HI")
+            if (!sessionStorage.userAuthenticated) {
+                location.replace("http://localhost:8080/login.html")
+            }
+
+            let hotelTypeData
+
+            document.addEventListener('DOMContentLoaded', async function() {
+                
+                let destinationRes = await fetch("http://localhost:3000/getDestinationPrices")
+                let destinationData = await destinationRes.json()
+
+                let bedRes = await fetch("http://localhost:3000/getBedPrices")
+                hotelTypeData = await bedRes.json()
+                console.log(hotelTypeData)
+
+                let cart = getCartFromCookie()
+                displayCartItems(cart)
+
+                let total = getTotalFromCookie()
+                displayTotal(total)
+
+                // Populate the destination dropdown
+                const destinationSelect = document.getElementById('destination');
+                destinationData.forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = item.id;
+                    option.text = `${item.destination} - $${item.ticket_price}`;
+                    destinationSelect.appendChild(option);
+                });
+            });
+
+            function getHotelTypePrice(type) {
+                // Find the price for the specified hotel type
+                const hotelType = hotelTypeData.find(item => item.bed_type === type);
+                return hotelType ? hotelType.price_per_night : 0;
+            }
+            function handleSubmit() {
+                const destinationSelect = document.getElementById('destination');
+                const ticketsInput = document.getElementById('tickets');
+                const oneBedRadio = document.getElementById('oneBed');
+                const twoBedsRadio = document.getElementById('twoBeds');
+                const totalPriceDiv = document.getElementById('totalPrice');
+
+                const selectedOption = destinationSelect.options[destinationSelect.selectedIndex];
+                const ticketPrice = selectedOption.value ? parseFloat(selectedOption.text.split('$')[1]) : 0;
+                const numberOfTickets = ticketsInput.value;
+
+                const hotelType = oneBedRadio.checked ? 'OneBed' : (twoBedsRadio.checked ? 'TwoBeds' : null);
+                const hotelTypePrice = hotelType ? getHotelTypePrice(hotelType) : 0;
+
+                const total = (ticketPrice * Number(numberOfTickets)) + Number(hotelTypePrice)
+
+                console.log(ticketPrice)
+                console.log(hotelTypePrice)
+                console.log(numberOfTickets)
+
+                console.log(typeof ticketPrice)
+                console.log(typeof hotelTypePrice)
+                console.log(typeof numberOfTickets)
+
+                totalPriceDiv.innerText = `Total Price: $${total.toFixed(2)}`;
+
+                const cartItem = {
+                    destination: destinationSelect.options[destinationSelect.selectedIndex].text,
+                    tickets: numberOfTickets,
+                    hotelType: oneBedRadio.checked ? 'One Bed' : (twoBedsRadio.checked ? 'Two Beds' : null),
+                    totalPrice: total.toFixed(2),
+                };
+
+                // Retrieve the current cart from the cookie
+                const cart = getCartFromCookie();
+
+                // Add the new item to the cart
+                cart.push(cartItem);
+
+                // Store the updated cart in the cookie
+                document.cookie = `cart=${JSON.stringify(cart)}; expires=${new Date(Date.now() + 3600000).toUTCString()}`
+
+                let currentTotal = getTotalFromCookie()
+                let wholeTotal = Number(currentTotal) + Number(cartItem.totalPrice)
+                document.cookie = `total=${Number(currentTotal) + Number(cartItem.totalPrice)}; expires=${new Date(Date.now() + 3600000).toUTCString()}`
+
+                alert('Item added to cart!');
+                // Update the displayed cart items
+                const newCart = getCartFromCookie();
+                displayCartItems(newCart);
+                displayTotal(wholeTotal)
+            }
+            function getCartFromCookie() {
+                // Retrieve the cart from the cookie and parse it as JSON
+                const storedCart = document.cookie
+                    .split('; ')
+                    .find(row => row.startsWith('cart='));
+
+                return storedCart ? JSON.parse(storedCart.split('=')[1]) : [];
+            }
+            function getTotalFromCookie() {
+                // Retrieve the running total from the cookie and parse it as a float
+                const storedTotal = document.cookie
+                    .split('; ')
+                    .find(row => row.startsWith('total='));
+
+                return storedTotal ? parseFloat(storedTotal.split('=')[1]) : 0;
+            }
+            function displayCartItems(cart) {
+                // Display the cart items in the HTML
+                const cartItemsList = document.getElementById('cartItemsList');
+                cartItemsList.innerHTML = '';
+
+                if (cart.length === 0) {
+                    const emptyCartItem = document.createElement('li');
+                    emptyCartItem.textContent = 'Your cart is empty.';
+                    cartItemsList.appendChild(emptyCartItem);
+                } else {
+                    cart.forEach(item => {
+                    const cartItem = document.createElement('li');
+                    cartItem.textContent = `${item.destination} - ${item.tickets} tickets, ${item.hotelType ? item.hotelType : 'No hotel type selected'}, Total: $${item.totalPrice}`;
+                    cartItemsList.appendChild(cartItem);
+                    });
+                }
+            }
+            function displayTotal(total) {
+                const totalPriceDiv = document.getElementById('totalPrice');
+                totalPriceDiv.innerText = `Running Total: $${total.toFixed(2)}`;
+            }
+            function removeLastItem() {
+                // Retrieve the current cart from the cookie
+                const cart = getCartFromCookie();
+
+                // Remove the last item from the cart
+                const removedItem = cart.pop();
+
+                let currentTotal = getTotalFromCookie()
+                let wholeTotal = Number(currentTotal) - Number(removedItem.totalPrice)
+                document.cookie = `total=${Number(currentTotal) - Number(removedItem.totalPrice)}; expires=${new Date(Date.now() + 3600000).toUTCString()}`
+
+                // Store the updated cart in the cookie
+                document.cookie = `cart=${JSON.stringify(cart)}; expires=${new Date(Date.now() + 3600000).toUTCString()}`
+
+                // Update the displayed cart items
+                displayCartItems(cart);
+                displayTotal(wholeTotal)
+                
+                if (removedItem) {
+                    alert(`Removed: ${removedItem.destination}`);
+                } else {
+                    alert('Cart is already empty.');
+                }
+            }
+        </script>
+    </head>
+    <body>
+        <header>
+            <nav class="nav">
+                <a href="home.html">
+                    <img class="logo" src="Assets/SmallWorldLogo.png"/>
+                </a>
+                <ul class="nav-list">
+                    <li class="nav-item"><a href="athens.html">Athens</a></li>
+                    <li class="nav-item"><a href="dubai.html">Dubai</a></li>
+                    <li class="nav-item"><a href="nyc.html">New York City</a></li>
+                    <li class="nav-item"><a href="paris.html">Paris</a></li>
+                    <li class="nav-item"><a href="rio.html">Rio</a></li>
+                    <li class="nav-item"><a href="rome.html">Rome</a></li>
+                    <li class="nav-item"><a href="tokyo.html">Tokyo</a></li>
+                    <li class="nav-item"><a href="shop.html">BUY NOW</a></li>
+                    <li class="nav-item"><a href="orderHistory.html">ORDER HISTORY</a></li>
+                    <li class="nav-item"><a href="checkout.html">CHECKOUT</a></li>
+                </ul>
+            </nav>
+        </header>
+        <form onsubmit="event.preventDefault(); handleSubmit();" method="post">
+            <label for="destination">Select Destination:</label>
+            <select id="destination" name="destination" required>
+            </select>
+    
+            <br>
+    
+            <label for="tickets">Number of Tickets:</label>
+            <input type="number" id="tickets" name="tickets" min="1" required>
+    
+            <br>
+    
+            <label for="hotelType">Select Hotel Type:</label>
+            <input type="radio" id="oneBed" name="hotelType" value="OneBed" required>
+            <label for="oneBed">One Bed</label>
+    
+            <input type="radio" id="twoBeds" name="hotelType" value="TwoBeds" required>
+            <label for="twoBeds">Two Beds</label>
+    
+            <br>
+    
+            <input type="submit" value="Add to Cart">
+            
+            <div id="totalPrice">
+
+            </div>
+        </form>
+        <div id="cartItemsList">
+        </div>
+        <button onclick="removeLastItem()">Remove Last Item</button>
+    </body>
+</html>

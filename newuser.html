@@ -1,0 +1,55 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Login</title>
+        <meta name="description" content="Home page">
+        <meta name="keywords" content="Home Landing">
+        <link rel="stylesheet" href="./styles.css"/>
+        <link rel="stylesheet" media="screen and (max-width: 768px)" href="stylesMed.css">
+        <link rel="stylesheet" media="screen and (max-width: 480px)" href="stylesSmall.css">
+        <script>
+            async function handleNewUser() {
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+
+                try {
+                    const response = await fetch('http://localhost:3000/newuser', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: `username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`,
+                    });
+
+                    if (response.ok) {
+                        // Successful login
+                        alert('User Created Successfully!');
+                        location.replace("/login.html")
+                    } else if (response.status === 401) {
+                        // Unauthorized (incorrect password or user not found)
+                        alert('Something went wrong');
+                    } else {
+                        // Other error
+                        alert('An error occurred');
+                    }
+                } catch (error) {
+                    console.error('An error occurred:', error);
+                    // Handle other errors
+                }
+            }
+        </script>
+    </head>
+    <body>
+        <h1>Create new user</h1>
+        <form onsubmit="event.preventDefault(); handleNewUser();" method="POST">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+    
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+    
+            <button type="submit">Create User</button>
+        </form>
+        <a href="./login.html">Login existing user</a>
+    </body>
+</html>

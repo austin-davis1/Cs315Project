@@ -1,0 +1,128 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Home</title>
+        <meta name="description" content="Home page">
+        <meta name="keywords" content="Home Landing">
+        <link rel="stylesheet" href="./styles.css"/>
+        <link rel="stylesheet" media="screen and (max-width: 768px)" href="stylesMed.css">
+        <link rel="stylesheet" media="screen and (max-width: 480px)" href="stylesSmall.css">
+        <script>
+            console.log("HI")
+            if (!sessionStorage.userAuthenticated) {
+                location.replace("http://localhost:8080/login.html")
+            }
+
+            document.addEventListener('DOMContentLoaded', async function() {
+                // Display the initial cart items
+                const cart = getCartFromCookie();
+                displayCartItems(cart);
+
+                const total = getTotalFromCookie()
+                displayTotal(total)
+            });
+
+            function displayTotal(total) {
+                const totalPriceDiv = document.getElementById('totalPrice');
+                totalPriceDiv.innerText = `Running Total: $${total.toFixed(2)}`;
+            }
+
+            async function handleSubmit() {
+                let cart = getCartFromCookie()
+                let total = getTotalFromCookie()
+
+                // Retrieve credit card and shipping address from form
+                const creditCard = document.getElementById('creditCard').value;
+                const shippingAddress = document.getElementById('shippingAddress').value;
+
+                let userRes = await fetch(`http://localhost:3000/getUserId?username=${sessionStorage.getItem("username")}`)
+                let userData = await userRes.json()
+                let userId = userData[0].id
+
+                cart.forEach((cartItem) => {
+                    addDatabaseOrder(userId, cartItem.destination, cartItem.tickets, cartItem.hotelType, creditCard, shippingAddress)
+                })
+
+                document.cookie = `cart=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+                document.cookie = `total=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+            }
+
+            async function addDatabaseOrder(userId, destination, tickets, hotelType, creditCard, shippingAddress) {
+                const response = await fetch('http://localhost:3000/purchase', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: `userId=${encodeURIComponent(userId)}&destination=${encodeURIComponent(destination)}&tickets=${encodeURIComponent(tickets)}&hotelType=${encodeURIComponent(hotelType)}&creditCard=${encodeURIComponent(creditCard)}&shippingAddress=${encodeURIComponent(shippingAddress)}`,
+                    });
+            }
+
+            function getCartFromCookie() {
+                // Retrieve the cart from the cookie and parse it as JSON
+                const storedCart = document.cookie
+                    .split('; ')
+                    .find(row => row.startsWith('cart='));
+
+                return storedCart ? JSON.parse(storedCart.split('=')[1]) : [];
+            }
+            function getTotalFromCookie() {
+                // Retrieve the running total from the cookie and parse it as a float
+                const storedTotal = document.cookie
+                    .split('; ')
+                    .find(row => row.startsWith('total='));
+
+                return storedTotal ? parseFloat(storedTotal.split('=')[1]) : 0;
+            }
+            function displayCartItems(cart) {
+                // Display the cart items in the HTML
+                const cartItemsList = document.getElementById('cartItemsList');
+                cartItemsList.innerHTML = '';
+
+                if (cart.length === 0) {
+                    const emptyCartItem = document.createElement('li');
+                    emptyCartItem.textContent = 'Your cart is empty.';
+                    cartItemsList.appendChild(emptyCartItem);
+                } else {
+                    cart.forEach(item => {
+                    const cartItem = document.createElement('li');
+                    cartItem.textContent = `${item.destination} - ${item.tickets} tickets, ${item.hotelType ? item.hotelType : 'No hotel type selected'}, Total: $${item.totalPrice}`;
+                    cartItemsList.appendChild(cartItem);
+                    });
+                }
+            }
+        </script>
+    </head>
+    <body>
+        <header>
+            <nav class="nav">
+                <a href="home.html">
+                    <img class="logo" src="Assets/SmallWorldLogo.png"/>
+                </a>
+                <ul class="nav-list">
+                    <li class="nav-item"><a href="athens.html">Athens</a></li>
+                    <li class="nav-item"><a href="dubai.html">Dubai</a></li>
+                    <li class="nav-item"><a href="nyc.html">New York City</a></li>
+                    <li class="nav-item"><a href="paris.html">Paris</a></li>
+                    <li class="nav-item"><a href="rio.html">Rio</a></li>
+                    <li class="nav-item"><a href="rome.html">Rome</a></li>
+                    <li class="nav-item"><a href="tokyo.html">Tokyo</a></li>
+                    <li class="nav-item"><a href="shop.html">BUY NOW</a></li>
+                    <li class="nav-item"><a href="orderHistory.html">ORDER HISTORY</a></li>
+                    <li class="nav-item"><a href="checkout.html">CHECKOUT</a></li>
+                </ul>
+            </nav>
+        </header>
+        <form id="checkoutForm" onsubmit="event.preventDefault(); handleSubmit()">
+            <div id="cartItemsList"></div>
+            <div id="totalPrice"></div>
+
+            <label for="creditCard">Credit Card:</label>
+            <input type="text" id="creditCard" name="creditCard" placeholder="Enter your credit card number" required>
+        
+            <label for="shippingAddress">Shipping Address:</label>
+            <textarea id="shippingAddress" name="shippingAddress" placeholder="Enter your shipping address" required></textarea>
+        
+            <button type="submit">Submit Order</button>
+          </form>
+    </body>
+</html>
